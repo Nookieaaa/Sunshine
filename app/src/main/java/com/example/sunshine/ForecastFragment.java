@@ -1,9 +1,11 @@
 package com.example.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -69,22 +71,36 @@ public class ForecastFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Toast.makeText(getActivity(), mForecastAdapter.getItem(position).toString(), Toast.LENGTH_LONG).show();
-                Intent detailIntent = new Intent(getActivity(),DetailActivity.class);
-                detailIntent.putExtra("forecast",mForecastAdapter.getItem(position));
+                Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                detailIntent.putExtra("forecast", mForecastAdapter.getItem(position));
                 startActivity(detailIntent);
             }
         });
 
-        FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
-        fetchWeatherTask.execute("02222");
-
         return rootView ;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+    }
+
+    private void updateWeather(){
+        FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
+        fetchWeatherTask.execute(getLocationFromPrefs());
+    }
+
+    private String getLocationFromPrefs(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = preferences.getString(getString(R.string.location),getString(R.string.pref_default_location));
+        return location;
     }
 
     @Override
@@ -96,9 +112,9 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
-                FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
-                fetchWeatherTask.execute("02222");
+               updateWeather();
                 return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
