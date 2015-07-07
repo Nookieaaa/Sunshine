@@ -45,11 +45,8 @@ public class DetailActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-
             Intent preferences = new Intent(this,SettingsActivity.class);
             startActivity(preferences);
-
-
 
             return true;
         }
@@ -63,6 +60,7 @@ public class DetailActivity extends ActionBarActivity {
         public PlaceholderFragment() {
         }
 
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -71,6 +69,7 @@ public class DetailActivity extends ActionBarActivity {
 
             forecast_tw = (TextView)rootView.findViewById(R.id.forecast_tw);
             forecast_tw.setText(getActivity().getIntent().getStringExtra("forecast"));
+
             return rootView;
         }
     }

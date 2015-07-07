@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,7 +40,7 @@ import java.util.ArrayList;
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment {
-
+    private SharedPreferences preferences;
     private ArrayAdapter<String> mForecastAdapter;
 
     public ForecastFragment() {
@@ -90,6 +91,7 @@ public class ForecastFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
     }
 
     private void updateWeather(){
@@ -98,9 +100,15 @@ public class ForecastFragment extends Fragment {
     }
 
     private String getLocationFromPrefs(){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String location = preferences.getString(getString(R.string.location),getString(R.string.pref_default_location));
+        String location = preferences.getString(getString(R.string.location),
+                getString(R.string.pref_default_location));
         return location;
+    }
+
+    private String getUnitsFromPrefs(){
+        String units = preferences.getString(getString(R.string.pref_units_key),
+                getString(R.string.pref_units_metric));
+        return units;
     }
 
     @Override
@@ -147,6 +155,10 @@ public class ForecastFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             super.onPostExecute(result);
+            if (result==null) {
+                Toast.makeText(getActivity(),"no data",Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (!mForecastAdapter.isEmpty()) {
                 mForecastAdapter.clear();
             }
@@ -241,7 +253,7 @@ public class ForecastFragment extends Fragment {
             BufferedReader reader = null;
 
             String format = "json";
-            String units = "metric";
+            String units  = getUnitsFromPrefs();
             int numDays = 7;
 
             try {

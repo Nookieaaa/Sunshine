@@ -1,10 +1,14 @@
 package com.example.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -31,16 +35,38 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        switch (id) {
+            case R.id.action_settings: {
+                Intent preferences = new Intent(this, SettingsActivity.class);
+                startActivity(preferences);
+                break;
+            }
+            case R.id.action_map: {
+                openPreferredLocationInMap();
+                break;
 
-            Intent preferences = new Intent(this,SettingsActivity.class);
-            startActivity(preferences);
+            }
 
-
-
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+
+
+        private void openPreferredLocationInMap(){
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            String location = preferences.getString(getString(R.string.location),
+                    getString(R.string.pref_default_location));
+            Uri geo = Uri.parse("geo:0,0?").buildUpon().appendQueryParameter("q",location).build();
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(geo);
+
+            if (intent.resolveActivity(getPackageManager())!=null) {
+                startActivity(intent);
+            }
+            else
+                Toast.makeText(this,"NO MAP ON DEVICE",Toast.LENGTH_SHORT).show();
+        }
 }
